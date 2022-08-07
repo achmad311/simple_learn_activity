@@ -117,13 +117,17 @@ class LearnActivityController extends Controller
         // return $datatables;
         $learnActivities = collect([]);
         $data = LearnActivityMethod::with(['learnActivities' => function ($q) {
-            $q->select(DB::raw("id, method_id, name, start_date, end_date, date_part('month', start_date) AS month"))
+            $q->select(DB::raw("id, method_id, name, start_date, end_date, date_part('month', start_date) AS month,
+            (CASE WHEN start_date <= now() AND end_date <= now() THEN 'Sudah Berakhir'
+            WHEN start_date <= now() AND end_date >= now() THEN 'Sedang Berlangsung'
+            WHEN start_date > now() THEN 'Akan Datang' END) as status"))
                 ->groupBy('month', 'start_date', 'name', 'end_date', 'method_id', 'id')
                 ->orderBy('start_date', 'asc')
                 ->orderBy('end_date', 'asc');
         }])->get();
 
         $collect = collect($data);
+        // dd($collect->toArray());
         $collect->map(function ($item) use ($learnActivities) {
 
             $data['method_id'] = $item->id;
@@ -137,14 +141,21 @@ class LearnActivityController extends Controller
             $learnActivities->push($data);
         });
 
+        $arrBagde = [
+            'Sudah Berakhir' => 'badge bg-danger',
+            'Sedang Berlangsung' => 'badge bg-warning',
+            'Akan Datang' => 'badge bg-success',
+        ];
+
         return DataTables::of($learnActivities)
-            ->editColumn('january', function ($learnActivity) {
+            ->editColumn('january', function ($learnActivity) use ($arrBagde) {
                 $value = '<ul class="list-group list-group-flush">';
                 foreach ($learnActivity['january'] as $january) {
                     $value .= '<li class="list-group-item d-flex justify-content-between align-items-start">
                 <div class="ms-2 me-auto">
                   <div class="">' . $january->name . '</div>
                   <div class="fs-6 fst-italic">(' . $january->start_date . '-' . $january->end_date . ')</div>
+                  <span class="' . $arrBagde[$january->status] . '">' . $january->status . '</span>
                 </div>
                 <div class="dropdown">
                   <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
@@ -165,13 +176,14 @@ class LearnActivityController extends Controller
 
                 return $value;
             })
-            ->editColumn('february', function ($learnActivity) {
+            ->editColumn('february', function ($learnActivity) use ($arrBagde) {
                 $value = '<ul class="list-group list-group-flush">';
                 foreach ($learnActivity['february'] as $february) {
                     $value .= '<li class="list-group-item d-flex justify-content-between align-items-start">
                 <div class="ms-2 me-auto">
                   <div class="">' . $february->name . '</div>
                   <div class="fs-6 fst-italic">(' . $february->start_date . '-' . $february->end_date . ')</div>
+                  <span class="' . $arrBagde[$february->status] . '">' . $february->status . '</span>
                 </div>
                 <div class="dropdown">
                   <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
@@ -191,13 +203,14 @@ class LearnActivityController extends Controller
                 $value .= '</ul>';
                 return $value;
             })
-            ->editColumn('march', function ($learnActivity) {
+            ->editColumn('march', function ($learnActivity) use ($arrBagde) {
                 $value = '<ul class="list-group list-group-flush">';
                 foreach ($learnActivity['march'] as $march) {
                     $value .= '<li class="list-group-item d-flex justify-content-between align-items-start">
                 <div class="ms-2 me-auto">
                   <div class="">' . $march->name . '</div>
                   <div class="fs-6 fst-italic">(' . $march->start_date . '-' . $march->end_date . ')</div>
+                  <span class="' . $arrBagde[$march->status] . '">' . $march->status . '</span>
                 </div>
                 <div class="dropdown">
                   <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
@@ -217,13 +230,14 @@ class LearnActivityController extends Controller
                 $value .= '</ul>';
                 return $value;
             })
-            ->editColumn('april', function ($learnActivity) {
+            ->editColumn('april', function ($learnActivity) use ($arrBagde) {
                 $value = '<ul class="list-group list-group-flush">';
                 foreach ($learnActivity['april'] as $april) {
                     $value .= '<li class="list-group-item d-flex justify-content-between align-items-start">
                 <div class="ms-2 me-auto">
                   <div class="">' . $april->name . '</div>
                   <div class="fs-6 fst-italic">(' . $april->start_date . '-' . $april->end_date . ')</div>
+                  <span class="' . $arrBagde[$april->status] . '">' . $april->status . '</span>
                 </div>
                 <div class="dropdown">
                   <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
@@ -243,13 +257,14 @@ class LearnActivityController extends Controller
                 $value .= '</ul>';
                 return $value;
             })
-            ->editColumn('may', function ($learnActivity) {
+            ->editColumn('may', function ($learnActivity) use ($arrBagde) {
                 $value = '<ul class="list-group list-group-flush">';
                 foreach ($learnActivity['may'] as $may) {
                     $value .= '<li class="list-group-item d-flex justify-content-between align-items-start">
                 <div class="ms-2 me-auto">
                   <div class="">' . $may->name . '</div>
                   <div class="fs-6 fst-italic">(' . $may->start_date . '-' . $may->end_date . ')</div>
+                  <span class="' . $arrBagde[$may->status] . '">' . $may->status . '</span>
                 </div>
                 <div class="dropdown">
                   <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
@@ -269,13 +284,14 @@ class LearnActivityController extends Controller
                 $value .= '</ul>';
                 return $value;
             })
-            ->editColumn('june', function ($learnActivity) {
+            ->editColumn('june', function ($learnActivity) use ($arrBagde) {
                 $value = '<ul class="list-group list-group-flush">';
                 foreach ($learnActivity['june'] as $june) {
                     $value .= '<li class="list-group-item d-flex justify-content-between align-items-start">
                 <div class="ms-2 me-auto">
                   <div class="">' . $june->name . '</div>
                   <div class="fs-6 fst-italic">(' . $june->start_date . '-' . $june->end_date . ')</div>
+                  <span class="' . $arrBagde[$june->status] . '">' . $june->status . '</span>
                 </div>
                 <div class="dropdown">
                   <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
